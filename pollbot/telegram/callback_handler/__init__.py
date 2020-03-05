@@ -272,8 +272,6 @@ async def handle_callback_query(session, event, user):
     # implements its own callback query answer logic.
     if response is not None and context.callback_type != CallbackType.vote:
         await event.answer(response)
-    else:
-        await event.answer('')
 
     increase_stat(session, 'callback_calls')
 
