@@ -18,7 +18,7 @@ async def activate_notification(session, context, event, poll):
     """Show to vote type keyboard."""
     user = context.user
     if user != poll.user:
-        return "You aren't allowed to do this"
+        return "You are not allowed to do this"
 
     notification = session.query(Notification) \
         .filter(Notification.select_message_id == event.message_id) \

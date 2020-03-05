@@ -139,9 +139,9 @@ async def set_next_month(session, context, event, poll):
     datepicker_context = DatepickerContext(int(context.data[3]))
 
     next_month = this_month + relativedelta(months=1)
+    event.answer(i18n.t('callback.date_changed', locale=poll.locale,
+                        date=next_month.isoformat()))
     await update_datepicker(context, poll, datepicker_context, next_month)
-    return i18n.t('callback.date_changed', locale=poll.locale,
-                  date=next_month.isoformat())
 
 
 @poll_required
@@ -151,6 +151,6 @@ async def set_previous_month(session, context, event, poll):
     datepicker_context = DatepickerContext(int(context.data[3]))
 
     previous_month = this_month - relativedelta(months=1)
+    event.answer(i18n.t('callback.date_changed', locale=poll.locale,
+                        date=previous_month.isoformat()))
     await update_datepicker(context, poll, datepicker_context, previous_month)
-    return i18n.t('callback.date_changed', locale=poll.locale,
-                  date=previous_month.isoformat())

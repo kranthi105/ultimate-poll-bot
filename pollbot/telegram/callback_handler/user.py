@@ -101,8 +101,8 @@ async def change_user_language(session, context, event):
     """Open the language picker."""
     context.user.locale = context.action
     session.commit()
+    event.answer(i18n.t('user.language_changed', locale=context.user.locale))
     await open_user_settings(session, context, event)
-    return i18n.t('user.language_changed', locale=context.user.locale)
 
 
 async def delete_all_confirmation(session, context, event):
@@ -135,8 +135,8 @@ async def delete_all(session, context, event):
             session.rollback()
             session.expire_all()
 
+    event.answer(i18n.t('deleted.polls', locale=context.user.locale))
     await open_user_settings(session, context, event)
-    return i18n.t('deleted.polls', locale=context.user.locale)
 
 
 async def delete_closed(session, context, event):
@@ -151,5 +151,5 @@ async def delete_closed(session, context, event):
                 session.rollback()
                 session.expire_all()
 
+    event.answer(i18n.t('deleted.closed_polls', locale=context.user.locale))
     await open_user_settings(session, context, event)
-    return i18n.t('deleted.closed_polls', locale=context.user.locale)

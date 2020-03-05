@@ -89,8 +89,8 @@ async def toggle_anonymity(session, context, event, poll):
 
     poll.anonymous = not poll.anonymous
 
+    event.answer(i18n.t('callback.anonymity_changed', locale=context.user.locale))
     await open_anonymization_settings(event, poll)
-    return i18n.t('callback.anonymity_changed', locale=context.user.locale)
 
 
 @poll_required
@@ -101,8 +101,8 @@ async def toggle_results_visible(session, context, event, poll):
 
     poll.results_visible = not poll.results_visible
 
+    event.answer(i18n.t('callback.visibility_changed', locale=context.user.locale))
     await open_anonymization_settings(event, poll)
-    return i18n.t('callback.visibility_changed', locale=context.user.locale)
 
 
 @poll_required
@@ -113,9 +113,9 @@ async def all_options_entered(session, context, event, poll):
 
     locale = context.user.locale
     if poll.poll_type in [PollType.limited_vote.name, PollType.cumulative_vote.name]:
+        await event.respond(i18n.t('creation.vote_count_request', locale=locale))
         await event.edit(i18n.t('creation.option.finished', locale=locale))
         context.user.expected_input = ExpectedInput.vote_count.name
-        await event.respond(i18n.t('creation.vote_count_request', locale=locale))
 
         return
 

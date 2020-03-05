@@ -44,8 +44,6 @@ async def update_all(session, context, event):
             await update_poll_messages(session, poll)
             time.sleep(0.2)
 
-    return "Done"
-
 
 async def plot(session, context, event):
     """Plot interesting statistics."""
