@@ -10,9 +10,9 @@ from pollbot.telegram.keyboard import get_management_keyboard
 
 
 @poll_required
-def delete_poll(session, context, poll):
+async def delete_poll(session, context, event, poll):
     """Permanently delete the poll."""
-    remove_poll_messages(session, context.bot, poll)
+    await remove_poll_messages(session, poll)
     session.commit()
     session.delete(poll)
     try:
@@ -26,9 +26,9 @@ def delete_poll(session, context, poll):
 
 
 @poll_required
-def delete_poll_with_messages(session, context, poll):
+async def delete_poll_with_messages(session, context, event, poll):
     """Permanently delete the poll."""
-    remove_poll_messages(session, context.bot, poll, remove_all=True)
+    await remove_poll_messages(session, poll, remove_all=True)
     session.commit()
     session.delete(poll)
     try:
@@ -41,17 +41,17 @@ def delete_poll_with_messages(session, context, poll):
 
 
 @poll_required
-def close_poll(session, context, poll):
+async def close_poll(session, context, event, poll):
     """Close this poll."""
     poll.closed = True
     session.commit()
-    update_poll_messages(session, context.bot, poll)
+    await update_poll_messages(session, poll, event)
 
     return i18n.t('callback.closed', locale=poll.user.locale)
 
 
 @poll_required
-def reopen_poll(session, context, poll):
+async def reopen_poll(session, context, event, poll):
     """Reopen this poll."""
     if not poll.results_visible:
         return i18n.t('callback.cannot_reopen', locale=poll.user.locale)
@@ -66,31 +66,30 @@ def reopen_poll(session, context, poll):
         poll.set_due_date(poll.due_date)
 
     session.commit()
-    update_poll_messages(session, context.bot, poll)
+    await update_poll_messages(session, poll, event)
 
 
 @poll_required
-def reset_poll(session, context, poll):
+async def reset_poll(session, context, event, poll):
     """Reset this poll."""
     for vote in poll.votes:
         session.delete(vote)
     session.commit()
-    update_poll_messages(session, context.bot, poll)
+    await update_poll_messages(session, poll, event)
 
     return i18n.t('callback.votes_removed', locale=poll.user.locale)
 
 
 @poll_required
-def clone_poll(session, context, poll):
+async def clone_poll(session, context, event, poll):
     """Clone this poll."""
     new_poll = poll.clone(session)
     session.commit()
 
-    context.tg_chat.send_message(
+    await event.respond(
         get_poll_text(session, new_poll),
-        parse_mode='markdown',
-        reply_markup=get_management_keyboard(new_poll),
-        disable_web_page_preview=True,
+        buttons=get_management_keyboard(new_poll),
+        link_preview=False,
     )
 
     return i18n.t('callback.cloned', locale=poll.user.locale)

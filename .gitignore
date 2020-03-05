@@ -64,6 +64,3 @@ target/
 # Telethon stuff
 *.session
 *.session-journal
-
-# Repository kram
-pollbot.db
