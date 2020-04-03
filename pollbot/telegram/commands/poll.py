@@ -14,7 +14,7 @@ from pollbot.telegram.keyboard import (
 from pollbot.models import Poll
 
 
-@client.on(events.NewMessage(incoming=True, pattern='/create'))
+@client.on(events.NewMessage(incoming=True, pattern="/create"))
 @message_wrapper(private=True)
 async def create_poll(event, session, user):
     """Create a new poll."""
@@ -22,8 +22,9 @@ async def create_poll(event, session, user):
     user.started = True
     if user.current_poll is not None and not user.current_poll.created:
         await event.respond(
-            i18n.t('creation.already_creating', locale=user.locale),
-            buttons=get_cancel_creation_keyboard(user.current_poll))
+            i18n.t("creation.already_creating", locale=user.locale),
+            buttons=get_cancel_creation_keyboard(user.current_poll),
+        )
         raise events.StopPropagation
 
     poll = Poll.create(user, session)
@@ -34,7 +35,7 @@ async def create_poll(event, session, user):
     raise events.StopPropagation
 
 
-@client.on(events.NewMessage(incoming=True, pattern='/list_closed'))
+@client.on(events.NewMessage(incoming=True, pattern="/list_closed"))
 @message_wrapper(private=True)
 async def list_closed_polls(event, session, user):
     """Get a list of all closed polls."""
@@ -43,7 +44,7 @@ async def list_closed_polls(event, session, user):
     raise events.StopPropagation
 
 
-@client.on(events.NewMessage(incoming=True, pattern='/list'))
+@client.on(events.NewMessage(incoming=True, pattern="/list"))
 @message_wrapper(private=True)
 async def list_polls(event, session, user):
     """Get a list of all active polls."""

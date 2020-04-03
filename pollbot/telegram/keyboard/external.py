@@ -2,9 +2,7 @@
 from telethon import Button
 
 from pollbot.i18n import i18n
-from pollbot.helper.enums import (
-    CallbackType,
-)
+from pollbot.helper.enums import CallbackType
 
 
 def get_notify_keyboard(polls):
@@ -12,7 +10,7 @@ def get_notify_keyboard(polls):
     # Add back and pick buttons
     buttons = []
     for poll in polls:
-        pick_payload = f'{CallbackType.activate_notification.value}:{poll.id}:0'
+        pick_payload = f"{CallbackType.activate_notification.value}:{poll.id}:0"
         buttons.append([Button.inline(poll.name, data=pick_payload)])
 
     return buttons
@@ -21,11 +19,19 @@ def get_notify_keyboard(polls):
 def get_external_add_option_keyboard(poll):
     """Get the external keyboard for adding a new option after poll creation."""
     locale = poll.user.locale
-    datepicker_payload = f'{CallbackType.external_open_datepicker.value}:{poll.id}:0'
-    cancel_payload = f'{CallbackType.external_cancel.value}:{poll.id}:0'
+    datepicker_payload = f"{CallbackType.external_open_datepicker.value}:{poll.id}:0"
+    cancel_payload = f"{CallbackType.external_cancel.value}:{poll.id}:0"
     buttons = [
-        [Button.inline(i18n.t('datepicker.open', locale=locale), data=datepicker_payload)],
-        [Button.inline(i18n.t('keyboard.done', locale=poll.locale), data=cancel_payload)],
+        [
+            Button.inline(
+                i18n.t("datepicker.open", locale=locale), data=datepicker_payload
+            )
+        ],
+        [
+            Button.inline(
+                i18n.t("keyboard.done", locale=poll.locale), data=cancel_payload
+            )
+        ],
     ]
 
     keyboard = buttons
@@ -38,7 +44,11 @@ def get_external_share_keyboard(poll):
     locale = poll.user.locale
 
     buttons = [
-        [Button.switch_inline(i18n.t('keyboard.share', locale=locale), query=str(poll.uuid))]
+        [
+            Button.switch_inline(
+                i18n.t("keyboard.share", locale=locale), query=str(poll.uuid)
+            )
+        ]
     ]
     keyboard = buttons
 

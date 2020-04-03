@@ -11,7 +11,7 @@ from pollbot.helper.enums import (
 from pollbot.display import get_settings_text
 from pollbot.display.poll.compilation import (
     get_poll_text_and_vote_keyboard,
-    get_poll_text
+    get_poll_text,
 )
 from pollbot.telegram.keyboard import (
     get_change_poll_type_keyboard,
@@ -26,9 +26,7 @@ from pollbot.telegram.keyboard import (
 async def show_poll_type_keyboard(session, context, event, poll):
     """Change the initial keyboard to vote type keyboard."""
     keyboard = get_change_poll_type_keyboard(poll)
-    await event.edit(
-        buttons=keyboard
-    )
+    await event.edit(buttons=keyboard)
 
 
 @poll_required
@@ -57,10 +55,7 @@ async def show_vote_menu(session, context, event, poll):
         session.commit()
 
     text, keyboard = get_poll_text_and_vote_keyboard(
-        session,
-        poll,
-        user=context.user,
-        show_back=True,
+        session, poll, user=context.user, show_back=True,
     )
     # Set the expected_input to votes, since the user might want to vote multiple times
     context.user.expected_input = ExpectedInput.votes.name
@@ -73,9 +68,7 @@ async def show_settings(session, context, event, poll):
     text = get_settings_text(poll)
     keyboard = get_settings_keyboard(poll)
     await event.edit(
-        text,
-        buttons=keyboard,
-        link_preview=False,
+        text, buttons=keyboard, link_preview=False,
     )
     poll.in_settings = True
 
@@ -84,7 +77,7 @@ async def show_settings(session, context, event, poll):
 async def show_deletion_confirmation(session, context, event, poll):
     """Show the delete confirmation message."""
     await event.edit(
-        i18n.t('management.delete', locale=poll.user.locale),
+        i18n.t("management.delete", locale=poll.user.locale),
         buttons=get_deletion_confirmation(poll),
     )
 
@@ -93,7 +86,7 @@ async def show_deletion_confirmation(session, context, event, poll):
 async def show_close_confirmation(session, context, event, poll):
     """Show the permanent close confirmation message."""
     await event.edit(
-        i18n.t('management.permanently_close', locale=poll.user.locale),
+        i18n.t("management.permanently_close", locale=poll.user.locale),
         buttons=get_close_confirmation(poll),
     )
 
@@ -110,10 +103,7 @@ async def show_menu(session, context, event, poll):
     await remove_old_references(session, poll, context.user)
 
     reference = Reference(
-        poll,
-        ReferenceType.admin.name,
-        user=context.user,
-        message_id=event.message_id,
+        poll, ReferenceType.admin.name, user=context.user, message_id=event.message_id,
     )
     session.add(reference)
     session.commit()

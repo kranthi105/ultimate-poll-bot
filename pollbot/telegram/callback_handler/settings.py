@@ -33,7 +33,7 @@ async def send_settings_message(context):
 async def show_anonymization_confirmation(session, context, event, poll):
     """Show the delete confirmation message."""
     await event.edit(
-        i18n.t('settings.anonymize', locale=poll.user.locale),
+        i18n.t("settings.anonymize", locale=poll.user.locale),
         buttons=get_anonymization_confirmation_keyboard(poll),
     )
 
@@ -55,8 +55,7 @@ async def open_language_picker(session, context, event, poll):
     """Open the language picker."""
     keyboard = get_settings_language_keyboard(poll)
     await event.edit(
-        i18n.t('settings.change_language', locale=poll.user.locale),
-        buttons=keyboard,
+        i18n.t("settings.change_language", locale=poll.user.locale), buttons=keyboard,
     )
 
 
@@ -73,9 +72,7 @@ async def open_due_date_datepicker(session, context, event, poll):
     """Open the datepicker for setting a due date."""
     poll.user.expected_input = ExpectedInput.due_date.name
     keyboard = get_due_date_datepicker_keyboard(poll, date.today())
-    await event.edit(
-        buttons=keyboard
-    )
+    await event.edit(buttons=keyboard)
 
 
 @poll_required
@@ -96,7 +93,7 @@ async def expect_new_option(session, context, event, poll):
     user.current_poll = poll
 
     await event.edit(
-        text=i18n.t('creation.option.first', locale=user.locale),
+        text=i18n.t("creation.option.first", locale=user.locale),
         buttons=get_add_option_keyboard(poll),
     )
 
@@ -106,8 +103,7 @@ async def open_new_option_datepicker(session, context, event, poll):
     """Send a text and tell the user that we expect a new option."""
     keyboard = get_add_option_datepicker_keyboard(poll, date.today())
     await event.edit(
-        text=get_datepicker_text(poll),
-        buttons=keyboard,
+        text=get_datepicker_text(poll), buttons=keyboard,
     )
 
 
@@ -116,30 +112,26 @@ async def show_remove_options_menu(session, context, event, poll):
     """Show the menu for removing options."""
     keyboard = get_remove_option_keyboard(poll)
     await event.edit(
-        i18n.t('settings.remove_options', locale=poll.user.locale),
-        buttons=keyboard,
+        i18n.t("settings.remove_options", locale=poll.user.locale), buttons=keyboard,
     )
 
 
 @poll_required
 async def remove_option(session, context, event, poll):
     """Remove the option."""
-    session.query(PollOption) \
-        .filter(PollOption.id == context.action) \
-        .delete()
+    session.query(PollOption).filter(PollOption.id == context.action).delete()
 
     if poll.is_priority():
-        users = session.query(User) \
-            .join(User.votes) \
-            .filter(Vote.poll == poll) \
-            .all()
+        users = session.query(User).join(User.votes).filter(Vote.poll == poll).all()
 
         for user in users:
-            votes = session.query(Vote) \
-                .filter(Vote.poll == poll) \
-                .filter(Vote.user == user) \
-                .order_by(Vote.priority.asc()) \
+            votes = (
+                session.query(Vote)
+                .filter(Vote.poll == poll)
+                .filter(Vote.user == user)
+                .order_by(Vote.priority.asc())
                 .all()
+            )
 
             for index, vote in enumerate(votes):
                 vote.priority = index

@@ -21,7 +21,7 @@ async def toggle_percentage(session, context, event, poll):
     """Toggle the visibility of the percentage bar."""
     if poll.anonymous and not poll.show_option_votes:
         await event.respond(
-            i18n.t('settings.anonymity_warning', locale=context.user.locale),
+            i18n.t("settings.anonymity_warning", locale=context.user.locale),
         )
         return
     poll.show_percentage = not poll.show_percentage
@@ -36,7 +36,7 @@ async def toggle_option_votes(session, context, event, poll):
     """Toggle the visibility of the vote overview on an option."""
     if poll.anonymous and not poll.show_percentage:
         await event.respond(
-            text=i18n.t('settings.anonymity_warning', locale=context.user.locale),
+            text=i18n.t("settings.anonymity_warning", locale=context.user.locale),
         )
         return
 

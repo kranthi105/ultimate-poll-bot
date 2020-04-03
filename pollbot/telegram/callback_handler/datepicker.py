@@ -29,13 +29,9 @@ async def update_datepicker(context, poll, datepicker_context, current_date):
         message = get_settings_text(poll)
         keyboard = get_due_date_datepicker_keyboard(poll, current_date)
     else:
-        raise Exception('Unknown DatepickerContext')
+        raise Exception("Unknown DatepickerContext")
 
-    await context.event.edit(
-        message,
-        buttons=keyboard,
-        link_preview=False
-    )
+    await context.event.edit(message, buttons=keyboard, link_preview=False)
 
 
 async def owner_pick_date_option(session, context, event, poll, datepicker_context):
@@ -48,16 +44,20 @@ async def owner_pick_date_option(session, context, event, poll, datepicker_conte
     if existing_option is not None:
         session.delete(existing_option)
         session.commit()
-        message = i18n.t('callback.date_removed', locale=poll.locale,
-                         date=picked_date.isoformat())
+        message = i18n.t(
+            "callback.date_removed", locale=poll.locale, date=picked_date.isoformat()
+        )
     else:
         add_options(poll, context.data[2], is_date=True)
         session.commit()
-        message = i18n.t('callback.date_picked', locale=poll.locale,
-                         date=picked_date.isoformat())
+        message = i18n.t(
+            "callback.date_picked", locale=poll.locale, date=picked_date.isoformat()
+        )
     await event.answer(message)
 
-    await update_datepicker(context, poll, datepicker_context, picked_date.replace(day=1))
+    await update_datepicker(
+        context, poll, datepicker_context, picked_date.replace(day=1)
+    )
     if poll.created:
         await update_poll_messages(session, poll, event)
 
@@ -65,7 +65,9 @@ async def owner_pick_date_option(session, context, event, poll, datepicker_conte
 @poll_required
 async def pick_creation_date(session, context, event, poll):
     """Pick an option during poll creation."""
-    await owner_pick_date_option(session, context, event, poll, DatepickerContext.creation)
+    await owner_pick_date_option(
+        session, context, event, poll, DatepickerContext.creation
+    )
 
 
 @poll_required
@@ -76,7 +78,9 @@ async def pick_creation_weekday(session, context, event, poll):
 @poll_required
 async def pick_additional_date(session, context, event, poll):
     """Pick an option after creating the poll."""
-    await owner_pick_date_option(session, context, event, poll, DatepickerContext.additional_option)
+    await owner_pick_date_option(
+        session, context, event, poll, DatepickerContext.additional_option
+    )
 
 
 @poll_required
@@ -93,19 +97,17 @@ async def pick_external_date(session, context, event, poll):
     existing_option = poll.get_date_option(picked_date)
     # If that's the case, delete it
     if existing_option is not None:
-        return i18n.t('callback.date_already_picked', locale=poll.locale)
+        return i18n.t("callback.date_already_picked", locale=poll.locale)
 
     add_options(poll, context.data[2], is_date=True)
     session.commit()
-    message = i18n.t('callback.date_picked', locale=poll.locale,
-                     date=picked_date.isoformat())
+    message = i18n.t(
+        "callback.date_picked", locale=poll.locale, date=picked_date.isoformat()
+    )
     await event.answer(message)
 
     await update_datepicker(
-        context,
-        poll,
-        DatepickerContext.external_add_option,
-        picked_date.replace(day=1)
+        context, poll, DatepickerContext.external_add_option, picked_date.replace(day=1)
     )
     await update_poll_messages(session, poll)
 
@@ -115,20 +117,18 @@ async def pick_due_date(session, context, event, poll):
     """Set the due date for a poll."""
     picked_date = date.fromisoformat(context.data[2])
     if picked_date <= date.today():
-        return i18n.t('callback.due_date_in_past', locale=poll.user.locale)
+        return i18n.t("callback.due_date_in_past", locale=poll.user.locale)
 
     due_date = datetime.combine(picked_date, time(hour=12, minute=00))
-    if (due_date == poll.due_date):
+    if due_date == poll.due_date:
         poll.set_due_date(None)
-        await event.answer(
-            i18n.t('callback.due_date_removed', locale=poll.user.locale)
-        )
+        await event.answer(i18n.t("callback.due_date_removed", locale=poll.user.locale))
     else:
         poll.set_due_date(due_date)
 
     await event.edit(
         text=get_settings_text(context.poll),
-        buttons=get_due_date_datepicker_keyboard(poll, picked_date)
+        buttons=get_due_date_datepicker_keyboard(poll, picked_date),
     )
 
 
@@ -139,8 +139,9 @@ async def set_next_month(session, context, event, poll):
     datepicker_context = DatepickerContext(int(context.data[3]))
 
     next_month = this_month + relativedelta(months=1)
-    event.answer(i18n.t('callback.date_changed', locale=poll.locale,
-                        date=next_month.isoformat()))
+    event.answer(
+        i18n.t("callback.date_changed", locale=poll.locale, date=next_month.isoformat())
+    )
     await update_datepicker(context, poll, datepicker_context, next_month)
 
 
@@ -151,6 +152,9 @@ async def set_previous_month(session, context, event, poll):
     datepicker_context = DatepickerContext(int(context.data[3]))
 
     previous_month = this_month - relativedelta(months=1)
-    event.answer(i18n.t('callback.date_changed', locale=poll.locale,
-                        date=previous_month.isoformat()))
+    event.answer(
+        i18n.t(
+            "callback.date_changed", locale=poll.locale, date=previous_month.isoformat()
+        )
+    )
     await update_datepicker(context, poll, datepicker_context, previous_month)

@@ -3,6 +3,7 @@ import logging
 
 # Initialize config, client and the asyncio loop
 from pollbot.client import config, client, loop
+
 # Early import to initialize i18n
 from pollbot.i18n import i18n
 
@@ -30,8 +31,10 @@ from pollbot.telegram.commands.admin import (
 )
 from pollbot.telegram.commands.user import open_user_settings_command
 
-logging.basicConfig(level=config['logging']['log_level'],
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=config["logging"]["log_level"],
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 
 # Schedule jobs
 loop.create_task(message_update_job())

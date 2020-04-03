@@ -56,8 +56,8 @@ async def skip_description(session, context, event, poll):
     context.user.expected_input = ExpectedInput.options.name
     session.commit()
     await event.edit(
-        i18n.t('creation.option.first', locale=context.user.locale),
-        buttons=get_open_datepicker_keyboard(poll)
+        i18n.t("creation.option.first", locale=context.user.locale),
+        buttons=get_open_datepicker_keyboard(poll),
     )
 
 
@@ -74,7 +74,7 @@ async def show_poll_type_keyboard(session, context, event, poll):
 async def change_poll_type(session, context, event, poll):
     """Change the vote type."""
     if poll.created:
-        return i18n.t('callback.poll_created', locale=context.user.locale)
+        return i18n.t("callback.poll_created", locale=context.user.locale)
 
     poll.poll_type = PollType(context.action).name
 
@@ -85,11 +85,11 @@ async def change_poll_type(session, context, event, poll):
 async def toggle_anonymity(session, context, event, poll):
     """Change the anonymity settings of a poll."""
     if poll.created:
-        return i18n.t('callback.poll_already_created', locale=context.user.locale)
+        return i18n.t("callback.poll_already_created", locale=context.user.locale)
 
     poll.anonymous = not poll.anonymous
 
-    event.answer(i18n.t('callback.anonymity_changed', locale=context.user.locale))
+    event.answer(i18n.t("callback.anonymity_changed", locale=context.user.locale))
     await open_anonymization_settings(event, poll)
 
 
@@ -97,11 +97,11 @@ async def toggle_anonymity(session, context, event, poll):
 async def toggle_results_visible(session, context, event, poll):
     """Change the results visible settings of a poll."""
     if poll.created:
-        return i18n.t('callback.poll_already_created', locale=context.user.locale)
+        return i18n.t("callback.poll_already_created", locale=context.user.locale)
 
     poll.results_visible = not poll.results_visible
 
-    event.answer(i18n.t('callback.visibility_changed', locale=context.user.locale))
+    event.answer(i18n.t("callback.visibility_changed", locale=context.user.locale))
     await open_anonymization_settings(event, poll)
 
 
@@ -113,8 +113,8 @@ async def all_options_entered(session, context, event, poll):
 
     locale = context.user.locale
     if poll.poll_type in [PollType.limited_vote.name, PollType.cumulative_vote.name]:
-        await event.respond(i18n.t('creation.vote_count_request', locale=locale))
-        await event.edit(i18n.t('creation.option.finished', locale=locale))
+        await event.respond(i18n.t("creation.vote_count_request", locale=locale))
+        await event.edit(i18n.t("creation.option.finished", locale=locale))
         context.user.expected_input = ExpectedInput.vote_count.name
 
         return
@@ -128,7 +128,7 @@ async def open_creation_datepicker(session, context, event, poll):
     keyboard = get_creation_datepicker_keyboard(poll, date.today())
     # Switch from new option by text to new option via datepicker
     if context.user.expected_input != ExpectedInput.options.name:
-        await event.edit(i18n.t('creation.option.finished', locale=context.user.locale))
+        await event.edit(i18n.t("creation.option.finished", locale=context.user.locale))
         return
 
     context.user.expected_input = ExpectedInput.date.name
@@ -141,15 +141,15 @@ async def close_creation_datepicker(session, context, event, poll):
     """All options are entered the poll is created."""
     user = context.user
     if len(poll.options) == 0:
-        text = i18n.t('creation.option.first', locale=user.locale)
+        text = i18n.t("creation.option.first", locale=user.locale)
         keyboard = get_open_datepicker_keyboard(poll)
     else:
-        text = i18n.t('creation.option.next', locale=user.locale)
+        text = i18n.t("creation.option.next", locale=user.locale)
         keyboard = get_options_entered_keyboard(poll)
 
     # Replace the message completely, since all options have already been entered
     if user.expected_input != ExpectedInput.date.name:
-        await event.edit(i18n.t('creation.option.finished', locale=user.locale))
+        await event.edit(i18n.t("creation.option.finished", locale=user.locale))
         return
 
     user.expected_input = ExpectedInput.options.name
@@ -159,12 +159,10 @@ async def close_creation_datepicker(session, context, event, poll):
 async def cancel_creation(session, context, event):
     """Cancel the creation of a bot."""
     if context.poll is None:
-        return i18n.t('delete.doesnt_exist', locale=context.user.locale)
+        return i18n.t("delete.doesnt_exist", locale=context.user.locale)
 
     session.delete(context.poll)
     session.commit()
-    await event.edit(
-        i18n.t('delete.previous_deleted', locale=context.user.locale)
-    )
+    await event.edit(i18n.t("delete.previous_deleted", locale=context.user.locale))
 
     await init_poll(session, context, event)

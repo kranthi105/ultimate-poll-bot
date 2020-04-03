@@ -40,9 +40,11 @@ async def update_poll_messages(session, poll, event=None):
             # We got a request from a private chat
             message_id = event.message_id
 
-        reference = session.query(Reference) \
-            .filter(Reference.message_id == message_id) \
+        reference = (
+            session.query(Reference)
+            .filter(Reference.message_id == message_id)
             .one_or_none()
+        )
 
         # For now until all legacy inline message ids are migrated
         if reference is not None:
@@ -50,9 +52,7 @@ async def update_poll_messages(session, poll, event=None):
 
     # Check whether there already is a scheduled update
     new_update = False
-    update = session.query(Update) \
-        .filter(Update.poll == poll) \
-        .one_or_none()
+    update = session.query(Update).filter(Update.poll == poll).one_or_none()
 
     # If there's no update yet, create a new one
     if update is None:
@@ -64,20 +64,15 @@ async def update_poll_messages(session, poll, event=None):
         except (UniqueViolation, IntegrityError):
             # Some other function already created the update
             session.rollback()
-            update = session.query(Update) \
-                .filter(Update.poll == poll) \
-                .one()
+            update = session.query(Update).filter(Update.poll == poll).one()
 
     if not new_update:
         # Increase the counter and update the next_update date
         # This will result in a new update in the background job.
         # + The update will be scheduled at the end
-        session.query(Update) \
-            .filter(Update.poll == poll) \
-            .update({
-                'count': Update.count + 1,
-                'next_update': datetime.now(),
-            })
+        session.query(Update).filter(Update.poll == poll).update(
+            {"count": Update.count + 1, "next_update": datetime.now(),}
+        )
 
 
 async def send_updates(session, poll, show_warning=False):
@@ -91,11 +86,7 @@ async def update_reference(session, poll, reference, show_warning=False):
         # Admin poll management interface
         if reference.type == ReferenceType.admin.name and not poll.in_settings:
             text, keyboard = get_poll_text_and_vote_keyboard(
-                session,
-                poll,
-                user=poll.user,
-                show_warning=show_warning,
-                show_back=True
+                session, poll, user=poll.user, show_warning=show_warning, show_back=True
             )
 
             if poll.user.expected_input != ExpectedInput.votes.name:
@@ -112,10 +103,7 @@ async def update_reference(session, poll, reference, show_warning=False):
         # User that votes in private chat (priority vote)
         elif reference.type == ReferenceType.private_vote.name:
             text, keyboard = get_poll_text_and_vote_keyboard(
-                session,
-                poll,
-                user=reference.user,
-                show_warning=show_warning,
+                session, poll, user=reference.user, show_warning=show_warning,
             )
 
             await client.edit_message(
@@ -129,14 +117,13 @@ async def update_reference(session, poll, reference, show_warning=False):
         # Edit message created via inline query
         elif reference.type == ReferenceType.inline.name:
             # Create text and keyboard
-            text, keyboard = get_poll_text_and_vote_keyboard(session, poll, show_warning=show_warning)
+            text, keyboard = get_poll_text_and_vote_keyboard(
+                session, poll, show_warning=show_warning
+            )
 
             message_id = inline_message_id_from_reference(reference)
             await client.edit_message(
-                message_id,
-                text,
-                buttons=keyboard,
-                link_preview=False,
+                message_id, text, buttons=keyboard, link_preview=False,
             )
 
     except (
@@ -167,7 +154,7 @@ async def remove_poll_messages(session, poll, remove_all=False):
                 await client.edit_message(
                     reference.user.id,
                     message=reference.message_id,
-                    text=i18n.t('deleted.poll', locale=poll.locale),
+                    text=i18n.t("deleted.poll", locale=poll.locale),
                     link_preview=False,
                 )
 
@@ -176,7 +163,7 @@ async def remove_poll_messages(session, poll, remove_all=False):
                 await client.edit_message(
                     reference.user.id,
                     message=reference.message_id,
-                    text=i18n.t('deleted.poll', locale=poll.locale),
+                    text=i18n.t("deleted.poll", locale=poll.locale),
                     link_preview=False,
                 )
 
@@ -185,7 +172,7 @@ async def remove_poll_messages(session, poll, remove_all=False):
                 message_id = inline_message_id_from_reference(reference)
                 await client.edit_message(
                     message_id,
-                    i18n.t('deleted.poll', locale=poll.locale),
+                    i18n.t("deleted.poll", locale=poll.locale),
                     link_preview=False,
                 )
 
@@ -203,17 +190,15 @@ async def remove_poll_messages(session, poll, remove_all=False):
 def inline_message_id_from_reference(reference):
     """Helper to create a inline from references and legacy bot api references."""
     if reference.legacy_inline_message_id is not None:
-        message_id, peer, dc_id, access_hash = resolve_inline_message_id(reference.legacy_inline_message_id)
+        message_id, peer, dc_id, access_hash = resolve_inline_message_id(
+            reference.legacy_inline_message_id
+        )
         # Migrate from legacy to new format
         reference.message_id = message_id
         reference.message_dc_id = dc_id
         reference.message_access_hash = access_hash
         reference.legacy_inline_message_id = None
-        return InputBotInlineMessageID(
-            int(dc_id),
-            int(message_id),
-            int(access_hash)
-        )
+        return InputBotInlineMessageID(int(dc_id), int(message_id), int(access_hash))
 
     else:
         return InputBotInlineMessageID(

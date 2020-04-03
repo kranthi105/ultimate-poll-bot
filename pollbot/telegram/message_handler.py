@@ -57,8 +57,8 @@ async def handle_private_text(event, session, user):
             ExpectedInput.new_option: handle_new_option,
             ExpectedInput.new_user_option: handle_user_option_addition,
         }
-        if '*' in text or '_' in text or '[' in text or '`' in text:
-            await event.respond(i18n.t('creation.error.markdown', locale=user.locale))
+        if "*" in text or "_" in text or "[" in text or "`" in text:
+            await event.respond(i18n.t("creation.error.markdown", locale=user.locale))
             return
 
         return await actions[expected_input](event, session, user, text, poll)
@@ -69,13 +69,12 @@ async def handle_set_name(event, session, user, text, poll):
     poll.name = text
 
     if poll.name is None:
-        return i18n.t('creation.error.invalid_poll_name', locale=user.locale)
+        return i18n.t("creation.error.invalid_poll_name", locale=user.locale)
 
     user.expected_input = ExpectedInput.description.name
     keyboard = get_skip_description_keyboard(poll)
     await event.respond(
-        i18n.t('creation.description', locale=user.locale),
-        buttons=keyboard,
+        i18n.t("creation.description", locale=user.locale), buttons=keyboard,
     )
 
 
@@ -84,7 +83,7 @@ async def handle_set_description(event, session, user, text, poll):
     poll.description = text
     user.expected_input = ExpectedInput.options.name
     await event.respond(
-        i18n.t('creation.option.first', locale=user.locale),
+        i18n.t("creation.option.first", locale=user.locale),
         buttons=get_open_datepicker_keyboard(poll),
     )
 
@@ -96,7 +95,7 @@ async def handle_create_options(event, session, user, text, poll):
     added_options = add_options(poll, text)
 
     if len(added_options) == 0:
-        return i18n.t('creation.option.no_new', locale=user.locale)
+        return i18n.t("creation.option.no_new", locale=user.locale)
 
     await next_option(event, poll, added_options)
 
@@ -104,9 +103,11 @@ async def handle_create_options(event, session, user, text, poll):
 async def handle_set_vote_count(event, session, user, text, poll):
     """Set the amount of possible votes for this poll."""
     if poll.poll_type == PollType.limited_vote.name:
-        error_message = i18n.t('creation.error.limit_between', locale=user.locale, limit=len(poll.options))
+        error_message = i18n.t(
+            "creation.error.limit_between", locale=user.locale, limit=len(poll.options)
+        )
     elif poll.poll_type == PollType.cumulative_vote.name:
-        error_message = i18n.t('creation.error.limit_bigger_zero', locale=user.locale)
+        error_message = i18n.t("creation.error.limit_bigger_zero", locale=user.locale)
 
     try:
         amount = int(text)
@@ -114,11 +115,13 @@ async def handle_set_vote_count(event, session, user, text, poll):
         return error_message
 
     # Check for valid count
-    if amount < 1 or (poll.poll_type == PollType.limited_vote.name and amount > len(poll.options)):
+    if amount < 1 or (
+        poll.poll_type == PollType.limited_vote.name and amount > len(poll.options)
+    ):
         return error_message
 
     if amount > 2000000000:
-        return i18n.t('creation.error.too_big', locale=user.locale)
+        return i18n.t("creation.error.too_big", locale=user.locale)
 
     poll.number_of_votes = amount
 
@@ -130,13 +133,13 @@ async def handle_new_option(event, session, user, text, poll):
     added_options = add_options(poll, text)
 
     if len(added_options) > 0:
-        text = i18n.t('creation.option.multiple_added', locale=user.locale) + '\n'
+        text = i18n.t("creation.option.multiple_added", locale=user.locale) + "\n"
         for option in added_options:
-            text += f'\n*{option}*'
+            text += f"\n*{option}*"
         await event.respond(text)
         poll.init_votes_for_new_options(session)
     else:
-        await event.respond(i18n.t('creation.option.no_new', locale=user.locale))
+        await event.respond(i18n.t("creation.option.no_new", locale=user.locale))
 
     # Reset expected input
     user.current_poll = None
@@ -150,10 +153,7 @@ async def handle_new_option(event, session, user, text, poll):
 
     # Create new reference
     reference = Reference(
-        poll,
-        ReferenceType.admin.name,
-        user=user,
-        message_id=message.id
+        poll, ReferenceType.admin.name, user=user, message_id=message.id
     )
     session.add(reference)
     session.commit()
@@ -166,7 +166,7 @@ async def handle_user_option_addition(event, session, user, text, poll):
     if not poll.allow_new_options:
         user.current_poll = None
         user.expected_input = None
-        await event.respond(i18n.t('creation.not_allowed', locale=user.locale))
+        await event.respond(i18n.t("creation.not_allowed", locale=user.locale))
 
     added_options = add_options(poll, text)
 
@@ -176,9 +176,9 @@ async def handle_user_option_addition(event, session, user, text, poll):
         user.expected_input = None
 
         # Send message
-        text = i18n.t('creation.option.multiple_added', locale=user.locale) + '\n'
+        text = i18n.t("creation.option.multiple_added", locale=user.locale) + "\n"
         for option in added_options:
-            text += f'\n**{option}**'
+            text += f"\n**{option}**"
         await event.respond(text)
 
         # Update all polls
@@ -186,4 +186,4 @@ async def handle_user_option_addition(event, session, user, text, poll):
         session.commit()
         await update_poll_messages(session, poll)
     else:
-        await event.respond(i18n.t('creation.option.no_new', locale=user.locale))
+        await event.respond(i18n.t("creation.option.no_new", locale=user.locale))

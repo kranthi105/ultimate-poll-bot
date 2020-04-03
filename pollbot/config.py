@@ -5,21 +5,21 @@ import toml
 import logging
 
 default_config = {
-    'telegram': {
-        "bot_name": 'your_bot_username(without the @)',
+    "telegram": {
+        "bot_name": "your_bot_username(without the @)",
         "bot_token": "your_botfather_token",
         "api_id": "my.telegram.org_api_id",
         "api_hash": "my.telegram.org_api_hash",
-        "admin": 'nukesor',
+        "admin": "nukesor",
         "max_shared_per_poll": 20,
         "allow_private_votes": False,
     },
-    'database': {
-        "sql_uri": 'postgres://localhost/pollbot',
+    "database": {
+        "sql_uri": "postgres://localhost/pollbot",
         "connection_count": 20,
         "overflow_count": 10,
     },
-    'logging': {
+    "logging": {
         "sentry_enabled": False,
         "sentry_token": "",
         "log_level": logging.INFO,
@@ -27,7 +27,7 @@ default_config = {
     },
 }
 
-config_path = os.path.expanduser('~/.config/ultimate_pollbot.toml')
+config_path = os.path.expanduser("~/.config/ultimate_pollbot.toml")
 
 if not os.path.exists(config_path):
     with open(config_path, "w") as file_descriptor:

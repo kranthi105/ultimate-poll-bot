@@ -21,8 +21,7 @@ async def delete_poll(session, context, event, poll):
         # User spams the button and issues multiple deletes
         pass
 
-
-    return i18n.t('callback.deleted', locale=poll.user.locale)
+    return i18n.t("callback.deleted", locale=poll.user.locale)
 
 
 @poll_required
@@ -37,7 +36,7 @@ async def delete_poll_with_messages(session, context, event, poll):
         # User spams the button and issues multiple deletes
         pass
 
-    return i18n.t('callback.deleted', locale=poll.user.locale)
+    return i18n.t("callback.deleted", locale=poll.user.locale)
 
 
 @poll_required
@@ -46,7 +45,7 @@ async def close_poll(session, context, event, poll):
     poll.closed = True
     session.commit()
 
-    event.answer(i18n.t('callback.closed', locale=poll.user.locale))
+    event.answer(i18n.t("callback.closed", locale=poll.user.locale))
     await update_poll_messages(session, poll, event)
 
 
@@ -54,7 +53,7 @@ async def close_poll(session, context, event, poll):
 async def reopen_poll(session, context, event, poll):
     """Reopen this poll."""
     if not poll.results_visible:
-        return i18n.t('callback.cannot_reopen', locale=poll.user.locale)
+        return i18n.t("callback.cannot_reopen", locale=poll.user.locale)
     poll.closed = False
 
     # Remove the due date if it's in the past
@@ -76,7 +75,7 @@ async def reset_poll(session, context, event, poll):
         session.delete(vote)
     session.commit()
 
-    event.answer(i18n.t('callback.votes_removed', locale=poll.user.locale))
+    event.answer(i18n.t("callback.votes_removed", locale=poll.user.locale))
     await update_poll_messages(session, poll, event)
 
 
@@ -86,7 +85,7 @@ async def clone_poll(session, context, event, poll):
     new_poll = poll.clone(session)
     session.commit()
 
-    event.answer(i18n.t('callback.cloned', locale=poll.user.locale))
+    event.answer(i18n.t("callback.cloned", locale=poll.user.locale))
     await event.respond(
         get_poll_text(session, new_poll),
         buttons=get_management_keyboard(new_poll),

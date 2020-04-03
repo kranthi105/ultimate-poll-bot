@@ -9,7 +9,7 @@ from pollbot.config import config
 from pollbot.models import Poll, Reference
 from pollbot.display.poll.compilation import (
     get_poll_text_and_vote_keyboard,
-    compile_poll_text
+    compile_poll_text,
 )
 from pollbot.helper.enums import (
     ExpectedInput,
@@ -26,7 +26,7 @@ from pollbot.telegram.keyboard.external import (
 )
 
 
-@client.on(events.NewMessage(incoming=True, pattern='/start.*'))
+@client.on(events.NewMessage(incoming=True, pattern="/start.*"))
 @message_wrapper(private=True)
 async def start(event, session, user):
     """Send a start text."""
@@ -36,17 +36,17 @@ async def start(event, session, user):
     user.started = True
 
     try:
-        poll_uuid = UUID(text.split('-')[0])
-        action = StartAction(int(text.split('-')[1]))
+        poll_uuid = UUID(text.split("-")[0])
+        action = StartAction(int(text.split("-")[1]))
 
         poll = session.query(Poll).filter(Poll.uuid == poll_uuid).one()
     except:
-        text = ''
+        text = ""
 
     # We got an empty text, just send the start message
-    if text == '':
+    if text == "":
         await event.respond(
-            i18n.t('misc.start', locale=user.locale),
+            i18n.t("misc.start", locale=user.locale),
             buttons=get_main_keyboard(user),
             link_preview=False,
         )
@@ -54,7 +54,7 @@ async def start(event, session, user):
         raise events.StopPropagation
 
     if poll is None:
-        await event.respond('This poll no longer exists.')
+        await event.respond("This poll no longer exists.")
         raise events.StopPropagation
 
     if action == StartAction.new_option and poll.allow_new_options:
@@ -64,8 +64,8 @@ async def start(event, session, user):
         session.commit()
 
         await event.respond(
-            i18n.t('creation.option.first', locale=poll.locale),
-            buttons=get_external_add_option_keyboard(poll)
+            i18n.t("creation.option.first", locale=poll.locale),
+            buttons=get_external_add_option_keyboard(poll),
         )
     elif action == StartAction.show_results:
         # Get all lines of the poll
@@ -74,7 +74,7 @@ async def start(event, session, user):
         chunks = split_text(lines)
 
         for chunk in chunks:
-            message = '\n'.join(chunk)
+            message = "\n".join(chunk)
             try:
                 await event.respond(message, link_preview=False)
             # Retry for Timeout error (happens quite often when sending large messages)
@@ -84,31 +84,27 @@ async def start(event, session, user):
             time.sleep(1)
 
         await event.respond(
-            i18n.t('misc.start_after_results', locale=poll.locale),
+            i18n.t("misc.start_after_results", locale=poll.locale),
             buttons=get_main_keyboard(user),
         )
-        increase_stat(session, 'show_results')
+        increase_stat(session, "show_results")
 
     elif action == StartAction.share_poll and poll.allow_sharing:
         await event.respond(
-            i18n.t('external.share_poll', locale=poll.locale),
-            buttons=get_external_share_keyboard(poll)
+            i18n.t("external.share_poll", locale=poll.locale),
+            buttons=get_external_share_keyboard(poll),
         )
-        increase_stat(session, 'externally_shared')
+        increase_stat(session, "externally_shared")
 
     elif action == StartAction.vote:
-        if not config['telegram']['allow_private_votes'] and not poll.is_priority():
+        if not config["telegram"]["allow_private_votes"] and not poll.is_priority():
             return
 
         if poll.is_priority():
             poll.init_votes(session, user)
             session.commit()
 
-        text, keyboard = get_poll_text_and_vote_keyboard(
-            session,
-            poll,
-            user=user,
-        )
+        text, keyboard = get_poll_text_and_vote_keyboard(session, poll, user=user,)
 
         sent_message = await event.respond(text, buttons=keyboard, link_preview=False)
 

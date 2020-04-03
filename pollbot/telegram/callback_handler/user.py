@@ -25,7 +25,7 @@ async def open_main_menu(session, context, event):
     """Open the main menu."""
     keyboard = get_main_keyboard(context.user)
     await event.edit(
-        i18n.t('misc.start', locale=context.user.locale),
+        i18n.t("misc.start", locale=context.user.locale),
         buttons=keyboard,
         link_preview=False,
     )
@@ -42,7 +42,7 @@ async def open_language_menu(session, context, event):
     """Open the user language selection menu."""
     keyboard = get_user_language_keyboard(context.user)
     await event.edit(
-        i18n.t('settings.change_language', locale=context.user.locale),
+        i18n.t("settings.change_language", locale=context.user.locale),
         buttons=keyboard,
     )
 
@@ -62,14 +62,14 @@ async def list_closed_polls(session, context, event):
 async def open_donation(session, context, event):
     """Open the donations text."""
     await event.edit(
-        i18n.t('misc.donation', locale=context.user.locale),
+        i18n.t("misc.donation", locale=context.user.locale),
         buttons=get_donations_keyboard(context.user),
     )
 
 
 async def open_help(session, context, event):
     """Open the donations text."""
-    text, keyboard = get_help_text_and_keyboard(context.user, 'intro')
+    text, keyboard = get_help_text_and_keyboard(context.user, "intro")
     await event.edit(text, buttons=keyboard, link_preview=False)
 
 
@@ -78,8 +78,9 @@ async def init_poll(session, context, event):
     user = context.user
     if user.current_poll is not None and not user.current_poll.created:
         await event.respond(
-            i18n.t('creation.already_creating', locale=user.locale),
-            buttons=get_cancel_creation_keyboard(user.current_poll))
+            i18n.t("creation.already_creating", locale=user.locale),
+            buttons=get_cancel_creation_keyboard(user.current_poll),
+        )
         return
 
     poll = Poll.create(user, session)
@@ -101,15 +102,14 @@ async def change_user_language(session, context, event):
     """Open the language picker."""
     context.user.locale = context.action
     session.commit()
-    event.answer(i18n.t('user.language_changed', locale=context.user.locale))
+    event.answer(i18n.t("user.language_changed", locale=context.user.locale))
     await open_user_settings(session, context, event)
 
 
 async def delete_all_confirmation(session, context, event):
     keyboard = get_delete_all_confirmation_keyboard(context.user)
     await event.edit(
-        i18n.t('settings.user.delete_all_confirmation',
-               locale=context.user.locale),
+        i18n.t("settings.user.delete_all_confirmation", locale=context.user.locale),
         buttons=keyboard,
     )
 
@@ -117,9 +117,8 @@ async def delete_all_confirmation(session, context, event):
 async def delete_closed_confirmation(session, context, event):
     keyboard = get_delete_all_confirmation_keyboard(context.user, closed=True)
     await event.edit(
-        i18n.t('settings.user.delete_all_confirmation',
-               locale=context.user.locale),
-        parse_mode='markdown',
+        i18n.t("settings.user.delete_all_confirmation", locale=context.user.locale),
+        parse_mode="markdown",
         buttons=keyboard,
     )
 
@@ -135,7 +134,7 @@ async def delete_all(session, context, event):
             session.rollback()
             session.expire_all()
 
-    event.answer(i18n.t('deleted.polls', locale=context.user.locale))
+    event.answer(i18n.t("deleted.polls", locale=context.user.locale))
     await open_user_settings(session, context, event)
 
 
@@ -151,5 +150,5 @@ async def delete_closed(session, context, event):
                 session.rollback()
                 session.expire_all()
 
-    event.answer(i18n.t('deleted.closed_polls', locale=context.user.locale))
+    event.answer(i18n.t("deleted.closed_polls", locale=context.user.locale))
     await open_user_settings(session, context, event)
