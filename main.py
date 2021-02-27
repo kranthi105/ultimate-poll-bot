@@ -4,7 +4,7 @@
 from pollbot.pollbot import updater
 from pollbot.config import config
 
-print("Starting up")
+print("Starting up☺️")
 
 if config["webhook"]["enabled"]:
     domain = config["webhook"]["domain"]
